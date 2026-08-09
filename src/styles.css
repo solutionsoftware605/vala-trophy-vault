@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --shadow-plinth: 0 24px 60px -30px oklch(0 0 0 / 0.9);
+  --shadow-halo: 0 0 0 1px oklch(0.82 0.11 85 / 0.25), 0 30px 70px -35px oklch(0.82 0.11 85 / 0.35);
+}
+
+
 /*
  * Design system definition.
  *
