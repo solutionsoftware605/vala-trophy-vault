@@ -6,6 +6,8 @@ import {
   FileSpreadsheet,
   Loader2,
   Package,
+  Pin,
+  PinOff,
   Search,
   Volume2,
   VolumeX,
@@ -27,6 +29,8 @@ import {
   playTap,
   setSoundEnabled,
 } from "@/lib/trophy-sound";
+import { REFERENCES, referenceByKey } from "@/lib/references";
+import { useReferenceLocks } from "@/lib/reference-locks";
 
 
 const renders = import.meta.glob("../assets/trophies/*.{png,jpg}", {
@@ -39,8 +43,21 @@ function renderFor(id: string): string | undefined {
   return hit?.[1];
 }
 
-function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophyStage) => void }) {
-  const src = renderFor(item.id);
+function TrophyTile({
+  item,
+  onOpen,
+  src,
+  lockedLabel,
+  onPin,
+  onUnpin,
+}: {
+  item: TrophyStage;
+  onOpen: (t: TrophyStage) => void;
+  src?: string;
+  lockedLabel?: string;
+  onPin: (t: TrophyStage) => void;
+  onUnpin: (t: TrophyStage) => void;
+}) {
   return (
     <Tilt>
       <figure
@@ -53,7 +70,7 @@ function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophySta
               src={src}
               alt={`${item.role} stage ${item.stage} trophy — ${item.name}`}
               loading="lazy"
-              className="trophy-render h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+              className={`trophy-render h-full w-full transition-transform duration-700 group-hover:scale-[1.06] ${lockedLabel ? "object-contain" : "object-cover"}`}
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
@@ -65,9 +82,25 @@ function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophySta
               </span>
             </div>
           )}
+          {lockedLabel && (
+            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-accent bg-background/80 px-2 py-1 text-[0.55rem] uppercase tracking-[0.2em] text-accent backdrop-blur">
+              <Pin className="size-3" /> {lockedLabel}
+            </span>
+          )}
           <div className="pointer-events-none absolute inset-0 trophy-sheen" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+            <button
+              onClick={() => {
+                playTap();
+                if (lockedLabel) onUnpin(item);
+                else onPin(item);
+              }}
+              aria-label={lockedLabel ? "Unlock reference" : "Lock reference photo to this stage"}
+              className="rounded-md border border-border bg-card/80 p-2 text-foreground backdrop-blur transition-colors hover:border-accent"
+            >
+              {lockedLabel ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+            </button>
             <button
               onClick={() => {
                 playReveal();
