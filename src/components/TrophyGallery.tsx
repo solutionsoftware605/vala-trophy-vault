@@ -266,12 +266,33 @@ export function TrophyGallery() {
 
       {grouped.map(([roleName, items]) => (
         <section key={roleName} className="space-y-4">
-          <header className="flex items-baseline gap-4 border-b border-border pb-2">
+          <header className="flex flex-wrap items-baseline gap-4 border-b border-border pb-2">
             <h2 className="font-display text-2xl text-foreground">{roleName}</h2>
             <span className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
               {items.length} stages
             </span>
+            <button
+              disabled={packing === items[0].roleSlug}
+              onClick={async () => {
+                playDownload();
+                setPacking(items[0].roleSlug);
+                try {
+                  await downloadRolePack(roleName, items[0].roleSlug, items, renderFor);
+                } finally {
+                  setPacking(null);
+                }
+              }}
+              className="ml-auto inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+            >
+              {packing === items[0].roleSlug ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Package className="size-3.5" />
+              )}
+              Download role pack
+            </button>
           </header>
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((t) => (
               <TrophyTile key={t.id} item={t} onOpen={setOpen} />
