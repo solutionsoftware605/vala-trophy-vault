@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react";
-import { Download, Expand, Search, X } from "lucide-react";
+import { Download, Expand, Search, Volume2, VolumeX, X } from "lucide-react";
 import { ROLE_LIST, TIERS, TROPHIES, type TrophyStage } from "@/data/trophies";
+import { Tilt, Turntable } from "@/components/Trophy3D";
+import {
+  isSoundEnabled,
+  playDownload,
+  playHover,
+  playReveal,
+  playTap,
+  setSoundEnabled,
+} from "@/lib/trophy-sound";
 
 const renders = import.meta.glob("../assets/trophies/*.{png,jpg}", {
   eager: true,
@@ -15,59 +24,70 @@ function renderFor(id: string): string | undefined {
 function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophyStage) => void }) {
   const src = renderFor(item.id);
   return (
-    <figure className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-plinth transition-all hover:border-accent/60 hover:shadow-halo">
-      <div className="relative aspect-square overflow-hidden bg-gradient-stage">
-        {src ? (
-          <img
-            src={src}
-            alt={`${item.role} stage ${item.stage} trophy — ${item.name}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
-            <span className="font-display text-3xl text-muted-foreground/50">
-              {String(item.stage).padStart(2, "0")}
-            </span>
-            <span className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
-              render pending
-            </span>
-          </div>
-        )}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-        <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <button
-            onClick={() => onOpen(item)}
-            aria-label="Preview fullscreen"
-            className="rounded-md border border-border bg-card/80 p-2 text-foreground backdrop-blur transition-colors hover:border-accent"
-          >
-            <Expand className="size-4" />
-          </button>
-          {src && (
-            <a
-              href={src}
-              download={`${item.id}.png`}
-              aria-label="Download image"
+    <Tilt>
+      <figure
+        onMouseEnter={playHover}
+        className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-plinth transition-all hover:border-accent/60 hover:shadow-halo"
+      >
+        <div className="relative aspect-square overflow-hidden bg-gradient-stage">
+          {src ? (
+            <img
+              src={src}
+              alt={`${item.role} stage ${item.stage} trophy — ${item.name}`}
+              loading="lazy"
+              className="trophy-render h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
+              <span className="font-display text-3xl text-muted-foreground/50">
+                {String(item.stage).padStart(2, "0")}
+              </span>
+              <span className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
+                render pending
+              </span>
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-0 trophy-sheen" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+            <button
+              onClick={() => {
+                playReveal();
+                onOpen(item);
+              }}
+              aria-label="Preview in 3D"
               className="rounded-md border border-border bg-card/80 p-2 text-foreground backdrop-blur transition-colors hover:border-accent"
             >
-              <Download className="size-4" />
-            </a>
-          )}
+              <Expand className="size-4" />
+            </button>
+            {src && (
+              <a
+                href={src}
+                download={`${item.id}.png`}
+                onClick={playDownload}
+                aria-label="Download image"
+                className="rounded-md border border-border bg-card/80 p-2 text-foreground backdrop-blur transition-colors hover:border-accent"
+              >
+                <Download className="size-4" />
+              </a>
+            )}
+          </div>
         </div>
-      </div>
-      <figcaption className="space-y-1 p-4">
-        <div className="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
-          <span>{item.role}</span>
-          <span className="text-accent">Stage {String(item.stage).padStart(2, "0")}</span>
-        </div>
-        <h3 className="font-display text-base text-foreground">{item.name}</h3>
-        <span className="inline-block rounded-full border border-border px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
-          {item.tier}
-        </span>
-      </figcaption>
-    </figure>
+        <figcaption className="space-y-1 p-4">
+          <div className="flex items-center justify-between text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
+            <span>{item.role}</span>
+            <span className="text-accent">Stage {String(item.stage).padStart(2, "0")}</span>
+          </div>
+          <h3 className="font-display text-base text-foreground">{item.name}</h3>
+          <span className="inline-block rounded-full border border-border px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+            {item.tier}
+          </span>
+        </figcaption>
+      </figure>
+    </Tilt>
   );
 }
+
 
 function Chip({
   active,
