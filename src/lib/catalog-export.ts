@@ -20,22 +20,28 @@ export interface ManifestRow {
   assetId: string;
   filename: string;
   rendered: boolean;
+  lockedReference: string;
 }
 
 export function buildManifest(
   items: TrophyStage[],
   hasRender: (id: string) => boolean,
+  lockedFilename: (id: string) => string | undefined = () => undefined,
 ): ManifestRow[] {
-  return items.map((t) => ({
-    role: t.role,
-    roleSlug: t.roleSlug,
-    stage: t.stage,
-    stageName: t.name,
-    tier: t.tier,
-    assetId: t.id,
-    filename: `${t.id}.png`,
-    rendered: hasRender(t.id),
-  }));
+  return items.map((t) => {
+    const locked = lockedFilename(t.id);
+    return {
+      role: t.role,
+      roleSlug: t.roleSlug,
+      stage: t.stage,
+      stageName: t.name,
+      tier: t.tier,
+      assetId: t.id,
+      filename: locked ?? `${t.id}.png`,
+      rendered: Boolean(locked) || hasRender(t.id),
+      lockedReference: locked ?? "",
+    };
+  });
 }
 
 function csvCell(v: string | number | boolean) {
@@ -53,6 +59,7 @@ export function downloadManifestCSV(rows: ManifestRow[]) {
     "asset_id",
     "filename",
     "rendered",
+    "locked_reference",
   ];
   const body = rows.map((r) =>
     [r.role, r.roleSlug, r.stage, r.stageName, r.tier, r.assetId, r.filename, r.rendered]
@@ -85,6 +92,7 @@ export async function downloadRolePack(
   roleSlug: string,
   items: TrophyStage[],
   srcFor: (id: string) => string | undefined,
+  lockedFilename: (id: string) => string | undefined = () => undefined,
 ) {
   const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
@@ -93,6 +101,9 @@ export async function downloadRolePack(
 
   for (const t of items) {
     const src = srcFor(t.id);
+    const locked = lockedFilename(t.id);
+    const ext = locked ? (locked.split(".").pop() ?? "png") : "png";
+    const filename = `${t.id}.${ext}`;
     rows.push({
       role: t.role,
       roleSlug: t.roleSlug,
@@ -100,12 +111,13 @@ export async function downloadRolePack(
       stageName: t.name,
       tier: t.tier,
       assetId: t.id,
-      filename: `${t.id}.png`,
+      filename,
       rendered: Boolean(src),
+      lockedReference: locked ?? "",
     });
     if (!src) continue;
     const res = await fetch(src);
-    folder.file(`${t.id}.png`, await res.blob());
+    folder.file(filename, await res.blob());
   }
 
   folder.file(

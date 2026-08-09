@@ -6,6 +6,8 @@ import {
   FileSpreadsheet,
   Loader2,
   Package,
+  Pin,
+  PinOff,
   Search,
   Volume2,
   VolumeX,
@@ -27,6 +29,8 @@ import {
   playTap,
   setSoundEnabled,
 } from "@/lib/trophy-sound";
+import { REFERENCES, referenceByKey } from "@/lib/references";
+import { useReferenceLocks } from "@/lib/reference-locks";
 
 
 const renders = import.meta.glob("../assets/trophies/*.{png,jpg}", {
@@ -39,8 +43,21 @@ function renderFor(id: string): string | undefined {
   return hit?.[1];
 }
 
-function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophyStage) => void }) {
-  const src = renderFor(item.id);
+function TrophyTile({
+  item,
+  onOpen,
+  src,
+  lockedLabel,
+  onPin,
+  onUnpin,
+}: {
+  item: TrophyStage;
+  onOpen: (t: TrophyStage) => void;
+  src?: string | undefined;
+  lockedLabel?: string | undefined;
+  onPin: (t: TrophyStage) => void;
+  onUnpin: (t: TrophyStage) => void;
+}) {
   return (
     <Tilt>
       <figure
@@ -53,7 +70,7 @@ function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophySta
               src={src}
               alt={`${item.role} stage ${item.stage} trophy — ${item.name}`}
               loading="lazy"
-              className="trophy-render h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+              className={`trophy-render h-full w-full transition-transform duration-700 group-hover:scale-[1.06] ${lockedLabel ? "object-contain" : "object-cover"}`}
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
@@ -65,9 +82,25 @@ function TrophyTile({ item, onOpen }: { item: TrophyStage; onOpen: (t: TrophySta
               </span>
             </div>
           )}
+          {lockedLabel && (
+            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-accent bg-background/80 px-2 py-1 text-[0.55rem] uppercase tracking-[0.2em] text-accent backdrop-blur">
+              <Pin className="size-3" /> {lockedLabel}
+            </span>
+          )}
           <div className="pointer-events-none absolute inset-0 trophy-sheen" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+            <button
+              onClick={() => {
+                playTap();
+                if (lockedLabel) onUnpin(item);
+                else onPin(item);
+              }}
+              aria-label={lockedLabel ? "Unlock reference" : "Lock reference photo to this stage"}
+              className="rounded-md border border-border bg-card/80 p-2 text-foreground backdrop-blur transition-colors hover:border-accent"
+            >
+              {lockedLabel ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+            </button>
             <button
               onClick={() => {
                 playReveal();
@@ -141,6 +174,15 @@ export function TrophyGallery() {
   const [open, setOpen] = useState<TrophyStage | null>(null);
   const [sound, setSound] = useState(isSoundEnabled());
   const [packing, setPacking] = useState<string | null>(null);
+  const { locks, lock, unlock } = useReferenceLocks();
+  const [pinning, setPinning] = useState<TrophyStage | null>(null);
+
+  const lockedRef = (id: string) => {
+    const key = locks[id];
+    return key ? referenceByKey(key) : undefined;
+  };
+  const srcFor = (id: string) => lockedRef(id)?.src ?? renderFor(id);
+  const lockedFilename = (id: string) => lockedRef(id)?.filename;
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -166,7 +208,7 @@ export function TrophyGallery() {
     return [...map.entries()];
   }, [results]);
 
-  const openSrc = open ? renderFor(open.id) : undefined;
+  const openSrc = open ? srcFor(open.id) : undefined;
 
   return (
     <div className="space-y-10">
@@ -230,7 +272,9 @@ export function TrophyGallery() {
             <button
               onClick={() => {
                 playDownload();
-                downloadManifestCSV(buildManifest(results, (id) => Boolean(renderFor(id))));
+                downloadManifestCSV(
+                  buildManifest(results, (id) => Boolean(renderFor(id)), lockedFilename),
+                );
               }}
               className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
             >
@@ -240,7 +284,9 @@ export function TrophyGallery() {
             <button
               onClick={() => {
                 playDownload();
-                downloadManifestJSON(buildManifest(results, (id) => Boolean(renderFor(id))));
+                downloadManifestJSON(
+                  buildManifest(results, (id) => Boolean(renderFor(id)), lockedFilename),
+                );
               }}
               className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
             >
@@ -280,7 +326,7 @@ export function TrophyGallery() {
                 playDownload();
                 setPacking(slug);
                 try {
-                  await downloadRolePack(roleName, slug, items, renderFor);
+                  await downloadRolePack(roleName, slug, items, srcFor, lockedFilename);
                 } finally {
                   setPacking(null);
                 }
@@ -298,12 +344,89 @@ export function TrophyGallery() {
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((t) => (
-              <TrophyTile key={t.id} item={t} onOpen={setOpen} />
+              <TrophyTile
+                key={t.id}
+                item={t}
+                onOpen={setOpen}
+                src={srcFor(t.id)}
+                lockedLabel={lockedRef(t.id)?.label}
+                onPin={setPinning}
+                onUnpin={(x) => unlock(x.id)}
+              />
             ))}
           </div>
         </section>
         );
       })}
+
+      {pinning && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 p-6 backdrop-blur"
+          onClick={() => setPinning(null)}
+        >
+          <div
+            className="max-h-full w-full max-w-3xl overflow-auto rounded-2xl border border-border bg-card p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[0.65rem] uppercase tracking-[0.25em] text-accent">
+                  {pinning.role} · Stage {String(pinning.stage).padStart(2, "0")}
+                </p>
+                <h3 className="font-display text-2xl text-foreground">Lock a reference photo</h3>
+                <p className="text-xs text-muted-foreground">
+                  The selected photo is used as-is for {pinning.id}.
+                </p>
+              </div>
+              <button
+                onClick={() => setPinning(null)}
+                aria-label="Close reference picker"
+                className="rounded-md border border-border p-2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">
+              {REFERENCES.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => {
+                    playTap();
+                    lock(pinning.id, r.key);
+                    setPinning(null);
+                  }}
+                  className={`overflow-hidden rounded-xl border bg-gradient-stage p-2 transition-colors ${
+                    locks[pinning.id] === r.key
+                      ? "border-accent"
+                      : "border-border hover:border-accent/60"
+                  }`}
+                >
+                  <img
+                    src={r.src}
+                    alt={r.label}
+                    loading="lazy"
+                    className="aspect-square w-full object-contain"
+                  />
+                  <span className="mt-2 block text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground">
+                    {r.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {locks[pinning.id] && (
+              <button
+                onClick={() => {
+                  unlock(pinning.id);
+                  setPinning(null);
+                }}
+                className="mt-5 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+              >
+                <PinOff className="size-3.5" /> Remove lock
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {open && (
         <div
