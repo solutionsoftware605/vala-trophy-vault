@@ -29,10 +29,20 @@ function Index() {
     <main className="min-h-screen bg-background">
       <div className="border-b border-border bg-gradient-stage">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <p className="text-[0.65rem] uppercase tracking-[0.4em] text-accent">Software Vala</p>
-          <h1 className="mt-4 max-w-3xl font-display text-4xl leading-tight text-foreground sm:text-5xl">
+          <div className="flex items-center gap-4">
+            <img
+              src={logoAsset.url}
+              alt="Software Vala logo"
+              className="h-14 w-14 rounded-full shadow-halo"
+            />
+            <p className="text-[0.65rem] uppercase tracking-[0.4em] text-accent">
+              Software Vala · The Name of Trust
+            </p>
+          </div>
+          <h1 className="mt-6 max-w-3xl font-display text-4xl leading-tight text-foreground sm:text-5xl">
             AMS Premium Trophy Gallery
           </h1>
+
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             A visual asset library only — {ROLE_LIST.length} role collections, {TROPHIES.length}{" "}
             distinct award designs, each stage a unique silhouette in optical crystal, precision
