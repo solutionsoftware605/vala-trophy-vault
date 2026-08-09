@@ -1,7 +1,24 @@
 import { useMemo, useState } from "react";
-import { Download, Expand, Search, Volume2, VolumeX, X } from "lucide-react";
+import {
+  Download,
+  Expand,
+  FileJson,
+  FileSpreadsheet,
+  Loader2,
+  Package,
+  Search,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import { ROLE_LIST, TIERS, TROPHIES, type TrophyStage } from "@/data/trophies";
 import { Tilt, Turntable } from "@/components/Trophy3D";
+import {
+  buildManifest,
+  downloadManifestCSV,
+  downloadManifestJSON,
+  downloadRolePack,
+} from "@/lib/catalog-export";
 import {
   isSoundEnabled,
   playDownload,
@@ -10,6 +27,7 @@ import {
   playTap,
   setSoundEnabled,
 } from "@/lib/trophy-sound";
+
 
 const renders = import.meta.glob("../assets/trophies/*.{png,jpg}", {
   eager: true,
@@ -122,6 +140,7 @@ export function TrophyGallery() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<TrophyStage | null>(null);
   const [sound, setSound] = useState(isSoundEnabled());
+  const [packing, setPacking] = useState<string | null>(null);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -203,41 +222,88 @@ export function TrophyGallery() {
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
             {results.length} assets · {grouped.length} collections
           </p>
-          <button
-            onClick={() => {
-              const next = !sound;
-              setSoundEnabled(next);
-              setSound(next);
-              if (next) playTap();
-            }}
-            aria-label={sound ? "Mute award sounds" : "Enable award sounds"}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
-          >
-            {sound ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
-            {sound ? "Sound on" : "Sound off"}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                playDownload();
+                downloadManifestCSV(buildManifest(results, (id) => Boolean(renderFor(id))));
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              <FileSpreadsheet className="size-3.5" />
+              Manifest CSV
+            </button>
+            <button
+              onClick={() => {
+                playDownload();
+                downloadManifestJSON(buildManifest(results, (id) => Boolean(renderFor(id))));
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              <FileJson className="size-3.5" />
+              Manifest JSON
+            </button>
+            <button
+              onClick={() => {
+                const next = !sound;
+                setSoundEnabled(next);
+                setSound(next);
+                if (next) playTap();
+              }}
+              aria-label={sound ? "Mute award sounds" : "Enable award sounds"}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              {sound ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
+              {sound ? "Sound on" : "Sound off"}
+            </button>
+          </div>
         </div>
+
       </div>
 
-      {grouped.map(([roleName, items]) => (
+      {grouped.map(([roleName, items]) => {
+        const slug = items[0]?.roleSlug ?? roleName.toLowerCase();
+        return (
         <section key={roleName} className="space-y-4">
-          <header className="flex items-baseline gap-4 border-b border-border pb-2">
+          <header className="flex flex-wrap items-baseline gap-4 border-b border-border pb-2">
             <h2 className="font-display text-2xl text-foreground">{roleName}</h2>
             <span className="text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
               {items.length} stages
             </span>
+            <button
+              disabled={packing === slug}
+              onClick={async () => {
+                playDownload();
+                setPacking(slug);
+                try {
+                  await downloadRolePack(roleName, slug, items, renderFor);
+                } finally {
+                  setPacking(null);
+                }
+              }}
+              className="ml-auto inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+            >
+              {packing === slug ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Package className="size-3.5" />
+              )}
+              Download role pack
+            </button>
           </header>
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((t) => (
               <TrophyTile key={t.id} item={t} onOpen={setOpen} />
             ))}
           </div>
         </section>
-      ))}
+        );
+      })}
 
       {open && (
         <div
