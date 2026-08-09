@@ -75,8 +75,8 @@ export function Turntable({ src, alt }: { src: string; alt: string }) {
         onMouseMove={(e) => move(e.clientX)}
         onMouseUp={end}
         onMouseLeave={end}
-        onTouchStart={(e) => start(e.touches[0].clientX)}
-        onTouchMove={(e) => move(e.touches[0].clientX)}
+        onTouchStart={(e) => e.touches[0] && start(e.touches[0].clientX)}
+        onTouchMove={(e) => e.touches[0] && move(e.touches[0].clientX)}
         onTouchEnd={end}
       >
         <img
