@@ -53,8 +53,8 @@ function TrophyTile({
 }: {
   item: TrophyStage;
   onOpen: (t: TrophyStage) => void;
-  src?: string;
-  lockedLabel?: string;
+  src?: string | undefined;
+  lockedLabel?: string | undefined;
   onPin: (t: TrophyStage) => void;
   onUnpin: (t: TrophyStage) => void;
 }) {
