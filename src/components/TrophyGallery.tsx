@@ -1,7 +1,24 @@
 import { useMemo, useState } from "react";
-import { Download, Expand, Search, Volume2, VolumeX, X } from "lucide-react";
+import {
+  Download,
+  Expand,
+  FileJson,
+  FileSpreadsheet,
+  Loader2,
+  Package,
+  Search,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import { ROLE_LIST, TIERS, TROPHIES, type TrophyStage } from "@/data/trophies";
 import { Tilt, Turntable } from "@/components/Trophy3D";
+import {
+  buildManifest,
+  downloadManifestCSV,
+  downloadManifestJSON,
+  downloadRolePack,
+} from "@/lib/catalog-export";
 import {
   isSoundEnabled,
   playDownload,
@@ -10,6 +27,7 @@ import {
   playTap,
   setSoundEnabled,
 } from "@/lib/trophy-sound";
+
 
 const renders = import.meta.glob("../assets/trophies/*.{png,jpg}", {
   eager: true,
