@@ -121,6 +121,7 @@ export function TrophyGallery() {
   const [tier, setTier] = useState<string>("all");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<TrophyStage | null>(null);
+  const [sound, setSound] = useState(isSoundEnabled());
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
