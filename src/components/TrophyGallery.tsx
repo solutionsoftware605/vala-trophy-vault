@@ -100,7 +100,10 @@ function Chip({
 }) {
   return (
     <button
-      onClick={onClick}
+      onClick={() => {
+        playTap();
+        onClick();
+      }}
       className={`rounded-full border px-3 py-1.5 text-xs tracking-wide transition-colors ${
         active
           ? "border-accent bg-accent/15 text-accent"
