@@ -499,7 +499,7 @@ export const TROPHIES: TrophyStage[] = ROLES.flatMap((r) =>
       stage,
       name,
       tier: tierForStage(stage),
-      brief: `Ultra-premium corporate technology award trophy: ${r.forms[i]}. ${ESCALATION[i]}. Design language: ${r.language}. Materials: precision brushed and mirror-polished metal, optical crystal, black premium stone base, fine engraving, micro-detail. Cinematic studio product photography, dark seamless背景, realistic reflections and shadows, strong silhouette, no text, no logos, no people.`,
+      brief: `Ultra-premium corporate technology award trophy: ${r.forms[i]}. ${ESCALATION[i]}. Design language: ${r.language}. Materials: precision brushed and mirror-polished metal, optical crystal, black premium stone base, fine engraving, micro-detail. Cinematic studio product photography, dark seamless studio background, realistic reflections and shadows, strong silhouette, no text, no logos, no people.`,
     };
   }),
 );
