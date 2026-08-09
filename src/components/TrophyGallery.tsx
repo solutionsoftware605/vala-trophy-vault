@@ -249,10 +249,9 @@ export function TrophyGallery() {
               </button>
             </div>
             {openSrc ? (
-              <img
+              <Turntable
                 src={openSrc}
                 alt={`${open.role} stage ${open.stage} trophy — ${open.name}`}
-                className="w-full rounded-xl border border-border"
               />
             ) : (
               <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
@@ -264,6 +263,7 @@ export function TrophyGallery() {
               <a
                 href={openSrc}
                 download={`${open.id}.png`}
+                onClick={playDownload}
                 className="mt-4 inline-flex items-center gap-2 rounded-lg border border-accent px-4 py-2 text-xs uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent/10"
               >
                 <Download className="size-4" /> Download
