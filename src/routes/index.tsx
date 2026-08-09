@@ -53,7 +53,8 @@ function Index() {
           </p>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mx-auto max-w-7xl space-y-12 px-6 py-12">
+        <ReferenceBoard />
         <TrophyGallery />
       </div>
       <footer className="border-t border-border py-8 text-center text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
