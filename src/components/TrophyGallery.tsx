@@ -202,9 +202,24 @@ export function TrophyGallery() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {results.length} assets · {grouped.length} collections
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            {results.length} assets · {grouped.length} collections
+          </p>
+          <button
+            onClick={() => {
+              const next = !sound;
+              setSoundEnabled(next);
+              setSound(next);
+              if (next) playTap();
+            }}
+            aria-label={sound ? "Mute award sounds" : "Enable award sounds"}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+          >
+            {sound ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
+            {sound ? "Sound on" : "Sound off"}
+          </button>
+        </div>
       </div>
 
       {grouped.map(([roleName, items]) => (
