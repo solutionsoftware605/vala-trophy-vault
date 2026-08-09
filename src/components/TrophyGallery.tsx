@@ -140,6 +140,7 @@ export function TrophyGallery() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<TrophyStage | null>(null);
   const [sound, setSound] = useState(isSoundEnabled());
+  const [packing, setPacking] = useState<string | null>(null);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -264,7 +265,9 @@ export function TrophyGallery() {
 
       </div>
 
-      {grouped.map(([roleName, items]) => (
+      {grouped.map(([roleName, items]) => {
+        const slug = items[0]?.roleSlug ?? roleName.toLowerCase();
+        return (
         <section key={roleName} className="space-y-4">
           <header className="flex flex-wrap items-baseline gap-4 border-b border-border pb-2">
             <h2 className="font-display text-2xl text-foreground">{roleName}</h2>
@@ -272,19 +275,19 @@ export function TrophyGallery() {
               {items.length} stages
             </span>
             <button
-              disabled={packing === items[0].roleSlug}
+              disabled={packing === slug}
               onClick={async () => {
                 playDownload();
-                setPacking(items[0].roleSlug);
+                setPacking(slug);
                 try {
-                  await downloadRolePack(roleName, items[0].roleSlug, items, renderFor);
+                  await downloadRolePack(roleName, slug, items, renderFor);
                 } finally {
                   setPacking(null);
                 }
               }}
               className="ml-auto inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
             >
-              {packing === items[0].roleSlug ? (
+              {packing === slug ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : (
                 <Package className="size-3.5" />
@@ -299,7 +302,8 @@ export function TrophyGallery() {
             ))}
           </div>
         </section>
-      ))}
+        );
+      })}
 
       {open && (
         <div
