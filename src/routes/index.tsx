@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TrophyGallery } from "@/components/TrophyGallery";
 import { ReferenceBoard } from "@/components/ReferenceBoard";
+import { DuplicateChecker } from "@/components/DuplicateChecker";
 import { TROPHIES, ROLE_LIST } from "@/data/trophies";
 import logoAsset from "@/assets/software-vala-logo.jpg.asset.json";
 
