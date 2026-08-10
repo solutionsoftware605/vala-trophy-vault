@@ -70,7 +70,7 @@ function TrophyTile({
               src={src}
               alt={`${item.role} stage ${item.stage} trophy — ${item.name}`}
               loading="lazy"
-              className={`trophy-render h-full w-full transition-transform duration-700 group-hover:scale-[1.06] ${lockedLabel ? "object-contain" : "object-cover"}`}
+              className="trophy-render h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.05]"
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center">
