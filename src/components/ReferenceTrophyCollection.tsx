@@ -23,6 +23,12 @@ const assignments = [
   ["Support", "Service Excellence"],
   ["User", "Product Achievement"],
   ["Manager", "Operational Leadership"],
+  ["Administrator", "System Governance"],
+  ["Founder", "Visionary Leadership"],
+  ["Operator", "Delivery Excellence"],
+  ["Partner", "Strategic Alliance"],
+  ["Trainer", "Enablement Mastery"],
+  ["Innovator", "Breakthrough Engineering"],
 ] as const;
 
 const trophies = assignments.map(([role, category], index) => {
@@ -42,17 +48,18 @@ export function ReferenceTrophyCollection() {
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
           <p className="text-[0.65rem] uppercase tracking-[0.25em] text-accent">
-            Original supplied collection
+            Software Vala award collection
           </p>
           <h2 id="reference-trophies" className="mt-1 font-display text-3xl text-foreground">
-            12 Unique Physical Awards
+            {trophies.length} Unique Role Awards
           </h2>
         </div>
         <p className="max-w-md text-right text-xs leading-relaxed text-muted-foreground">
-          Individually separated from the supplied reference sheet. Original shape, material and
-          colour preserved—no recolours and no repeated silhouette.
+          Every award is a distinct sculpture with a clean studio background and a SOFTWARE VALA
+          engraved plate on the base—no repeated silhouette, no recolours.
         </p>
       </header>
+
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {trophies.map((trophy) => (
