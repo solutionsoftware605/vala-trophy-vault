@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ReferenceBoard } from "@/components/ReferenceBoard";
+
 import { ReferenceTrophyCollection } from "@/components/ReferenceTrophyCollection";
 import logoAsset from "@/assets/software-vala-logo.jpg.asset.json";
 
