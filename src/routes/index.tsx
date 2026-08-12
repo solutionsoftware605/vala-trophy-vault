@@ -12,13 +12,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Twelve unique Software Vala role awards separated from the supplied physical trophy reference collection.",
+          "Explore Software Vala’s premium role-based trophy progressions, reference awards, 3D previews, manifests, and downloadable role packs.",
       },
       { property: "og:title", content: "Software Vala AMS — Premium Trophy Gallery" },
       {
         property: "og:description",
         content:
-          "Browse and download twelve unique role-based Software Vala physical trophy references.",
+          "Browse unique Software Vala role awards and complete 10-stage premium trophy progressions.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -47,8 +47,8 @@ function Index() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            The supplied physical awards, separated one by one and assigned by role. Every trophy
-            keeps its original colour, material and silhouette.
+            Role-based physical awards and complete 10-stage progressions, each built with a unique
+            silhouette, premium materials, and Software Vala branding.
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-const refs = import.meta.glob("../assets/references/*.{jpg,png}", {
+const refs = import.meta.glob("../assets/reference-trophies/*.{jpg,jpeg,png}", {
   eager: true,
   import: "default",
 }) as Record<string, string>;
