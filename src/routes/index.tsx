@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { CredentialGallery } from "@/components/CredentialGallery";
 import { ReferenceTrophyCollection } from "@/components/ReferenceTrophyCollection";
 import { TrophyGallery } from "@/components/TrophyGallery";
 import logoAsset from "@/assets/software-vala-logo.jpg.asset.json";
@@ -54,6 +55,7 @@ function Index() {
       </div>
       <div className="mx-auto max-w-7xl space-y-16 px-6 py-12">
         <ReferenceTrophyCollection />
+        <CredentialGallery />
         <TrophyGallery />
       </div>
       <footer className="border-t border-border py-8 text-center text-[0.65rem] uppercase tracking-[0.25em] text-muted-foreground">
